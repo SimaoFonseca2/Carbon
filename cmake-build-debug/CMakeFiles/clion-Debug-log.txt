@@ -1,0 +1,13 @@
+C:\Windows\system32\wsl.exe --distribution kali-linux --exec /bin/bash -c "export CMAKE_COLOR_DIAGNOSTICS=ON && export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd /home/lazylinux/Carbon/cmake-build-debug && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G 'CodeBlocks - Unix Makefiles' -S /home/lazylinux/Carbon -B /home/lazylinux/Carbon/cmake-build-debug"
+CMake Deprecation Warning:
+  Support for "Extra Generators" like
+
+    CodeBlocks
+
+  is deprecated and will be removed from a future version of CMake.  IDEs may
+  use the cmake-file-api(7) to view CMake-generated project build trees.
+
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/lazylinux/Carbon/cmake-build-debug

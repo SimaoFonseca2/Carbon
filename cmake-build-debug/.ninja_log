@@ -1,0 +1,9 @@
+# ninja log v5
+490	606	1710374211294220488	Carbon	3a19ce59dcc2216c
+1	662	1710375200454216001	CMakeFiles/Carbon.dir/src/main.cpp.o	52cb985cfc53a90a
+1	556	1710375200344216001	CMakeFiles/Carbon.dir/src/Lexer.cpp.o	dd2bddcd597c4052
+2	521	1710375535992412093	CMakeFiles/Carbon.dir/src/Lexer.cpp.o	dd2bddcd597c4052
+1	643	1710375536112412093	CMakeFiles/Carbon.dir/src/main.cpp.o	52cb985cfc53a90a
+2	611	1710375572562412075	CMakeFiles/Carbon.dir/src/main.cpp.o	52cb985cfc53a90a
+1	605	1710375579152412079	CMakeFiles/Carbon.dir/src/main.cpp.o	52cb985cfc53a90a
+605	718	1710375579262412080	Carbon	3a19ce59dcc2216c

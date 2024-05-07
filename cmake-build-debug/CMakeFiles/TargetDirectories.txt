@@ -1,0 +1,3 @@
+/home/lazylinux/Carbon/cmake-build-debug/CMakeFiles/Carbon.dir
+/home/lazylinux/Carbon/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/lazylinux/Carbon/cmake-build-debug/CMakeFiles/rebuild_cache.dir
