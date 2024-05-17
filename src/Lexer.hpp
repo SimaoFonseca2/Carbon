@@ -69,6 +69,13 @@ inline std::vector <Token> Lexer::lex() {
             tokens.push_back({.type=TokenType::int_lit,.value=buffer});
             buffer.clear();
         }
+        if(search().value() == '+'){
+            tokens.push_back({.type=TokenType::plus,.value=buffer});
+            step();
+        }else if(search().value() == '*'){
+            tokens.push_back({.type=TokenType::times,.value=buffer});
+            step();
+        }
         if(search().value()==';'){
             tokens.push_back({.type=TokenType::semi,.value=buffer});
             step();

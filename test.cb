@@ -1,4 +1,4 @@
-let test = 3;
+let test = 2*3;
 let ok = 2;
 ok=test;
 return ok;

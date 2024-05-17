@@ -10,7 +10,9 @@ enum class TokenType{
     _let,
     ident,
     equals,
-    semi
+    semi,
+    plus,
+    times
 };
 
 struct Token{

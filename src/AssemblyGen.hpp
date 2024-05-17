@@ -14,6 +14,8 @@ public:
     [[nodiscard]] std::string inline gen_prog();
     void inline gen_stmt(const Node_stmt& stmt);
     void inline gen_expr(const Node_expr& expr);
+    void inline gen_term(const Node_term* term);
+    void inline gen_oper(const Node_OperationExpr* op_expr);
     void inline push(const std::string& reg);
     void inline pop(const std::string& reg);
 private:
@@ -68,42 +70,24 @@ void inline AssemblyGen::gen_stmt(const Node_stmt& stmt) {
         }
         void operator()(const Node_OperationExpr* operation_expr) const {
             //todo
+            std::cerr << "Operation expressions not implemented" << std::endl;
+            exit(EXIT_FAILURE);
         }
     };
     Visitor_stmt visitorStmt{.assemblyGen=this};
     std::visit(visitorStmt, stmt.stmt_var);
 }
 
+
+
 void inline AssemblyGen::gen_expr(const Node_expr& expr){
     struct Visitor_expr{
         AssemblyGen* assemblyGen;
-        void operator()(const Node_expr_intlit* expr_intlit) const{
-            if(!assemblyGen->isIdentStmt){
-                assemblyGen->m_output << "     mov rax, " << expr_intlit->int_lit.value.value() << "\n";
-                assemblyGen->push("rax");
-            }else{
-                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], "<< expr_intlit->int_lit.value.value() << "\n";
-                assemblyGen->isIdentStmt=false;
-            }
-        }
-        void operator()(const Node_expr_ident* expr_ident) const{
-            if(assemblyGen->variables.find(expr_ident->ident.value.value())==assemblyGen->variables.end()){
-                std::cerr << "Undeclared identifier: " << expr_ident->ident.value.value();
-                exit(EXIT_FAILURE);
-            }
-            if(assemblyGen->isIdentStmt && assemblyGen->variables.find(expr_ident->ident.value.value())!=assemblyGen->variables.end()){
-                auto y = expr_ident->ident.value.value();
-                assemblyGen->m_output << "      mov rax, QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(expr_ident->ident.value.value()).stack_location-1) * 8 << "], "<< "\n";
-                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], rax"<< "\n"; //this is a place holder
-                assemblyGen->isIdentStmt=false;
-            }else if(assemblyGen->variables.contains(expr_ident->ident.value.value())){
-                std::stringstream stack_off;
-                stack_off << "      QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(expr_ident->ident.value.value()).stack_location-1) * 8 << "]\n";
-                assemblyGen->push(stack_off.str());
-            }
+        void operator()(const Node_term* node_term) const {
+            assemblyGen->gen_term(node_term);
         }
         void operator()(const Node_OperationExpr* operation_expr) const {
-            //todo
+            assemblyGen->gen_oper(operation_expr);
         }
     };
     Visitor_expr visitorExpr{.assemblyGen = this};
@@ -120,6 +104,62 @@ void inline AssemblyGen::pop(const std::string &reg) {
     stack_size--;
 }
 
+void inline AssemblyGen::gen_term(const Node_term *term) {
+    struct Visitor_term{
+        AssemblyGen* assemblyGen;
+        void operator()(const Node_term_intlit* term_intlit) const{
+            if(!assemblyGen->isIdentStmt){
+                assemblyGen->m_output << "     mov rax, " << term_intlit->int_lit.value.value() << "\n";
+                assemblyGen->push("rax");
+            }else{
+                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], "<< term_intlit->int_lit.value.value() << "\n";
+                assemblyGen->isIdentStmt=false;
+            }
+        }
+        void operator()(const Node_term_ident* term_ident) const{
+            if(assemblyGen->variables.find(term_ident->ident.value.value())==assemblyGen->variables.end()){
+                std::cerr << "Undeclared identifier: " << term_ident->ident.value.value();
+                exit(EXIT_FAILURE);
+            }
+            if(assemblyGen->isIdentStmt && assemblyGen->variables.find(term_ident->ident.value.value())!=assemblyGen->variables.end()){
+                auto y = term_ident->ident.value.value();
+                assemblyGen->m_output << "      mov rax, QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(term_ident->ident.value.value()).stack_location-1) * 8 << "], "<< "\n";
+                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], rax"<< "\n"; //this is a place holder
+                assemblyGen->isIdentStmt=false;
+            }else if(assemblyGen->variables.contains(term_ident->ident.value.value())){
+                std::stringstream stack_off;
+                stack_off << "      QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(term_ident->ident.value.value()).stack_location-1) * 8 << "]\n";
+                assemblyGen->push(stack_off.str());
+            }
+        }
+    };
+    Visitor_term visitorterm{.assemblyGen = this};
+    std::visit(visitorterm, term->term_var);
+}
+
+void inline AssemblyGen::gen_oper(const Node_OperationExpr *op_expr) {
+    struct Visitor_oper{
+        AssemblyGen* assemblyGen;
+        void operator()(const Node_OperationExprAdd* add) const {
+            assemblyGen->gen_expr(*add->lhs);
+            assemblyGen->gen_expr(*add->rhs);
+            assemblyGen->pop("rax");
+            assemblyGen->pop("rbx");
+            assemblyGen->m_output << "      add rax, rbx\n";
+            assemblyGen->push("rax");
+        }
+        void operator()(const Node_OperationExprMulti* multi) const {
+            assemblyGen->gen_expr(*multi->lhs);
+            assemblyGen->gen_expr(*multi->rhs);
+            assemblyGen->pop("rax");
+            assemblyGen->pop("rbx");
+            assemblyGen->m_output << "      mul rbx\n";
+            assemblyGen->push("rax");
+        }
+    };
+    Visitor_oper visitorOper{.assemblyGen = this};
+    std::visit(visitorOper, op_expr->operation_var);
+}
 
 
 #endif //CARBON_ASSEMBLYGEN_HPP

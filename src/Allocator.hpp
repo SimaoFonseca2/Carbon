@@ -17,8 +17,6 @@ private:
     std::byte* m_head;
 };
 
-
-
 Allocator::Allocator(size_t bytes):m_size(bytes) {
     m_buffer = static_cast<std::byte *>(malloc(m_size));
     m_head = m_buffer;
