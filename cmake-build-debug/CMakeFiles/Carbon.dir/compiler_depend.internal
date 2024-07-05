@@ -26,6 +26,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /usr/include/c++/13/bits/cpp_type_traits.h
  /usr/include/c++/13/bits/cxxabi_forced.h
  /usr/include/c++/13/bits/cxxabi_init_exception.h
+ /usr/include/c++/13/bits/deque.tcc
  /usr/include/c++/13/bits/enable_special_members.h
  /usr/include/c++/13/bits/erase_if.h
  /usr/include/c++/13/bits/exception.h
@@ -68,6 +69,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /usr/include/c++/13/bits/stl_algobase.h
  /usr/include/c++/13/bits/stl_bvector.h
  /usr/include/c++/13/bits/stl_construct.h
+ /usr/include/c++/13/bits/stl_deque.h
  /usr/include/c++/13/bits/stl_function.h
  /usr/include/c++/13/bits/stl_iterator.h
  /usr/include/c++/13/bits/stl_iterator_base_funcs.h
@@ -75,6 +77,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /usr/include/c++/13/bits/stl_map.h
  /usr/include/c++/13/bits/stl_multimap.h
  /usr/include/c++/13/bits/stl_pair.h
+ /usr/include/c++/13/bits/stl_stack.h
  /usr/include/c++/13/bits/stl_tree.h
  /usr/include/c++/13/bits/stl_uninitialized.h
  /usr/include/c++/13/bits/stl_vector.h
@@ -98,6 +101,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /usr/include/c++/13/cwctype
  /usr/include/c++/13/debug/assertions.h
  /usr/include/c++/13/debug/debug.h
+ /usr/include/c++/13/deque
  /usr/include/c++/13/exception
  /usr/include/c++/13/ext/aligned_buffer.h
  /usr/include/c++/13/ext/alloc_traits.h
@@ -118,6 +122,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /usr/include/c++/13/ostream
  /usr/include/c++/13/pstl/pstl_config.h
  /usr/include/c++/13/sstream
+ /usr/include/c++/13/stack
  /usr/include/c++/13/stdexcept
  /usr/include/c++/13/streambuf
  /usr/include/c++/13/string

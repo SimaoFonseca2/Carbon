@@ -15,73 +15,104 @@ private:
     std::vector<Token> tokens;
     const std::string m_source;
     int m_index=0;
-
 };
 
-inline std::vector <Token> Lexer::lex() {
+inline std::vector<Token> Lexer::lex() {
     std::string buffer;
-    while(search().has_value()){
-        if(std::isalpha(search().value())){
+    while (search().has_value()) {
+        if (std::isalpha(search().value())) {
             buffer.push_back(search().value());
             step();
-        }
-        while(search().has_value() && std::isalpha(search().value())){
-            buffer.push_back(search().value());
-            step();
-        }
-        if(buffer=="return"){
-            tokens.push_back({.type=TokenType::_return,.value=buffer});
-            buffer.clear();
-        }
-        if(buffer=="let"){
-            tokens.push_back({.type=TokenType::_let,.value=buffer});
-            buffer.clear();
-        }
-        if(search().value()=='='){
-            tokens.push_back({.type=TokenType::equals,.value=buffer});
-            step();
-        }
-        if(isspace(search().value())){
-            step();
-        }
-        if(isalpha(search().value())){
-            while(std::isalpha(search().value())){
+            while (search().has_value() && std::isalnum(search().value())) {
                 buffer.push_back(search().value());
                 step();
             }
-            if(buffer=="return"){
-                tokens.push_back({.type=TokenType::_return,.value=buffer});
-                buffer.clear();
-            }else if(buffer=="let"){
-                tokens.push_back({.type=TokenType::_let,.value=buffer});
-                buffer.clear();
-            }else{
-                tokens.push_back({.type=TokenType::ident,.value=buffer});
+            if (buffer == "print") {
+                tokens.push_back({TokenType::_print, buffer});
             }
+            else if (buffer == "return") {
+                tokens.push_back({TokenType::_return, buffer});
+            } else if (buffer == "let") {
+                tokens.push_back({TokenType::_let, buffer});
+            }else if(buffer == "if"){
+                tokens.push_back({TokenType::_if, buffer});
+            }else {
+                tokens.push_back({TokenType::ident, buffer});
+            }
+            /*
+             * else if(search(-1).value()=='"'){
+                tokens.push_back({TokenType::string, buffer});
+            }
+             */
             buffer.clear();
-        }
+        } else if (isdigit(search().value())) {
+            while (search().has_value() && std::isdigit(search().value())) {
+                buffer.push_back(search().value());
+                step();
+            }
+            tokens.push_back({TokenType::int_lit, buffer});
+            buffer.clear();
+        } else {
+            switch (search().value()) {
+                case '+':
+                    tokens.push_back({TokenType::plus, "+"});
+                    break;
+                case '-':
+                    tokens.push_back({TokenType::minus, "-"});
+                    break;
+                case '*':
+                    tokens.push_back({TokenType::times, "*"});
+                    break;
+                case '/':
+                    tokens.push_back({TokenType::slash, "/"});
+                    break;
+                case '(':
+                    tokens.push_back({TokenType::open_paren, "("});
+                    break;
+                case ')':
+                    tokens.push_back({TokenType::close_paren, ")"});
+                    break;
+                case '=':
+                    tokens.push_back({TokenType::equals, "="});
+                    break;
+                case ';':
+                    tokens.push_back({TokenType::semi, ";"});
+                    break;
+                case '{':
+                    tokens.push_back({TokenType::open_curly, "{"});
+                    break;
+                case '}':
+                    tokens.push_back({TokenType::close_curly, "}"});
+                    break;
+                case '>':
+                    tokens.push_back({TokenType::bigger, ">"});
+                    break;
+                case '<':
+                    tokens.push_back({TokenType::smaller, "<"});
+                    break;
+                case '"':
+                    tokens.push_back({TokenType::quote, ""});
+                    step();
+                    buffer.clear();
+                    while (search().has_value() && search().value() != '"') {
+                        buffer.push_back(search().value());
+                        step();
+                    }
+                    tokens.push_back({TokenType::string, buffer});
+                    buffer.clear();
+                    step();
+                    if(buffer.find('\"')){
+                        tokens.push_back({TokenType::quote, buffer});
+                    }
 
-        if(isdigit(search().value())){
-            while(std::isdigit(search().value())){
-                buffer.push_back(search().value());
-                step();
+                    m_index--;
+                    break;
+                default:
+                    break;
             }
-            tokens.push_back({.type=TokenType::int_lit,.value=buffer});
-            buffer.clear();
-        }
-        if(search().value() == '+'){
-            tokens.push_back({.type=TokenType::plus,.value=buffer});
-            step();
-        }else if(search().value() == '*'){
-            tokens.push_back({.type=TokenType::times,.value=buffer});
-            step();
-        }
-        if(search().value()==';'){
-            tokens.push_back({.type=TokenType::semi,.value=buffer});
             step();
         }
     }
-
     return tokens;
 }
 

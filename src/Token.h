@@ -12,7 +12,19 @@ enum class TokenType{
     equals,
     semi,
     plus,
-    times
+    times,
+    slash,
+    minus,
+    close_paren,
+    open_paren,
+    open_curly,
+    close_curly,
+    _if,
+    bigger,//not implemented yet
+    smaller,//not implemented yet
+    _print,
+    quote,
+    string
 };
 
 struct Token{

@@ -7,6 +7,7 @@
 #include <variant>
 struct Node_expr;
 
+
 struct Node_OperationExprAdd {
     Node_expr* lhs;
     Node_expr* rhs;
@@ -17,8 +18,18 @@ struct Node_OperationExprMulti {
     Node_expr* rhs;
 };
 
+struct Node_OperationExprDiv {
+    Node_expr* lhs;
+    Node_expr* rhs;
+};
+
+struct Node_OperationExprSub {
+    Node_expr* lhs;
+    Node_expr* rhs;
+};
+
 struct Node_OperationExpr {
-    std::variant<Node_OperationExprAdd*, Node_OperationExprMulti*> operation_var;
+    std::variant<Node_OperationExprAdd*, Node_OperationExprMulti*, Node_OperationExprDiv*, Node_OperationExprSub*> operation_var;
 };
 
 struct Node_term_intlit{
@@ -29,8 +40,12 @@ struct Node_term_ident{
     Token ident;
 };
 
+struct Node_term_paren {
+    Node_expr* expr;
+};
+
 struct Node_term {
-    std::variant<Node_term_intlit*, Node_term_ident*> term_var;
+    std::variant<Node_term_intlit*, Node_term_ident*, Node_term_paren*> term_var;
 };
 
 struct Node_expr{
@@ -51,8 +66,24 @@ struct Node_stmt_ident{
     Node_expr* expr{};
 };
 
+struct Node_stmt_print{
+    Token msg;
+};
+
+struct Node_stmt;
+
+struct Node_stmt_scope{
+    std::vector<Node_stmt*> stmts;
+};
+
+struct Node_stmt_if{
+    std::optional<Token> ident;
+    Node_expr* expr{};
+    Node_stmt_scope* scope{};
+};
+
 struct Node_stmt{
-    std::variant<Node_stmt_return*, Node_stmt_let*, Node_stmt_ident*> stmt_var;
+    std::variant<Node_stmt_return*, Node_stmt_let*, Node_stmt_ident*, Node_stmt_scope*, Node_stmt_if*, Node_stmt_print*> stmt_var;
 };
 
 struct Node_prog{
@@ -67,11 +98,12 @@ public:
     inline explicit Parser(const std::vector<Token>& tokens);
     [[nodiscard]] inline std::optional<Token> search(int offset) const;
     inline Token retrieve_token();
-    std::optional<Node_expr*> Parse_expr();
-    std::optional<Node_OperationExpr*> Parse_operation_expr();
+    std::optional<Node_expr*> Parse_expr(int min_prece);
     std::optional<Node_term*> Parse_term();
     std::optional<Node_stmt*> Parse_stmt();
+    std::optional<Node_stmt_scope*> Parse_scope();
     std::optional<Node_prog> Parse_prog();
+    static std::optional<int> find_prece(TokenType type);
 private:
     std::vector<Token> m_tokens;
     int m_index=0;
@@ -96,46 +128,176 @@ Token Parser::retrieve_token() {
 }
 
 
-std::optional<Node_expr*> Parser::Parse_expr() {
-        if(auto term = Parse_term()){
-            if(search().has_value() && search().value().type==TokenType::plus){
-                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
-                    auto op_expr_add = m_allocator.alloc<Node_OperationExprAdd>();
-                    auto lhs_expr = m_allocator.alloc<Node_expr>();
-                    lhs_expr->expr_var=term.value();
-                    op_expr_add->lhs = lhs_expr;
-                    retrieve_token();
-                    if(auto rhs = Parse_expr()){
-                        op_expr_add->rhs = rhs.value();
-                        op_expr->operation_var = op_expr_add;
-                        auto rhs_expr = m_allocator.alloc<Node_expr>();
-                        rhs_expr->expr_var=op_expr;
-                        return rhs_expr;
-                    }
-            }else if(search().has_value() && search().value().type==TokenType::times){
-                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
-                auto op_expr_multi = m_allocator.alloc<Node_OperationExprMulti>();
-                auto lhs_expr = m_allocator.alloc<Node_expr>();
-                lhs_expr->expr_var=term.value();
-                op_expr_multi->lhs = lhs_expr;
-                retrieve_token();
-                if(auto rhs = Parse_expr()){
-                    op_expr_multi->rhs = rhs.value();
-                    op_expr->operation_var = op_expr_multi;
-                    auto rhs_expr = m_allocator.alloc<Node_expr>();
-                    rhs_expr->expr_var=op_expr;
-                    return rhs_expr;
-                }
-            }else{
-                auto expr = m_allocator.alloc<Node_expr>();
-                expr->expr_var = term.value();
-                return expr;
+
+std::optional<Node_expr*> Parser::Parse_expr(int min_prece = 0) {
+    std::optional<Node_term*> term_lhs = Parse_term();
+    if (!term_lhs.has_value()) {
+        return {};
+    }
+    auto expr_lhs = m_allocator.alloc<Node_expr>();
+    expr_lhs->expr_var = term_lhs.value();
+    std::optional<int> prece;
+    std::optional<Token> curr_token = search();
+
+    while (true) {
+        if (curr_token.has_value()) {
+            prece = find_prece(curr_token.value().type);
+            if (!prece.has_value() || prece < min_prece) {
+                break;
             }
+        } else {
+            break;
         }
+
+        Token op = retrieve_token();
+        int next_prece = prece.value() + 1;
+        auto expr_rhs = Parse_expr(next_prece);
+        if (!expr_rhs.has_value()) {
+            std::cerr << "Expression could not be parsed" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        switch (op.type) {
+            case TokenType::plus: {
+                auto add = m_allocator.alloc<Node_OperationExprAdd>();
+                add->lhs = expr_lhs;
+                add->rhs = expr_rhs.value();
+
+                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
+                op_expr->operation_var = add;
+
+                auto new_expr_lhs = m_allocator.alloc<Node_expr>();
+                new_expr_lhs->expr_var = op_expr;
+
+                expr_lhs = new_expr_lhs;
+                break;
+            }
+            case TokenType::times: {
+                auto multi = m_allocator.alloc<Node_OperationExprMulti>();
+                multi->lhs = expr_lhs;
+                multi->rhs = expr_rhs.value();
+                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
+                op_expr->operation_var = multi;
+                auto new_expr_lhs = m_allocator.alloc<Node_expr>();
+                new_expr_lhs->expr_var = op_expr;
+                expr_lhs = new_expr_lhs;
+                break;
+            }
+            case TokenType::slash: {
+                auto div = m_allocator.alloc<Node_OperationExprDiv>();
+                div->lhs = expr_lhs;
+                div->rhs = expr_rhs.value();
+                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
+                op_expr->operation_var = div;
+                auto new_expr_lhs = m_allocator.alloc<Node_expr>();
+                new_expr_lhs->expr_var = op_expr;
+                expr_lhs = new_expr_lhs;
+                break;
+            }
+            case TokenType::minus: {
+                auto sub = m_allocator.alloc<Node_OperationExprSub>();
+                sub->lhs = expr_lhs;
+                sub->rhs = expr_rhs.value();
+                auto op_expr = m_allocator.alloc<Node_OperationExpr>();
+                op_expr->operation_var = sub;
+                auto new_expr_lhs = m_allocator.alloc<Node_expr>();
+                new_expr_lhs->expr_var = op_expr;
+                expr_lhs = new_expr_lhs;
+                break;
+            }
+            default:
+                break;
+        }
+        curr_token = search();
+    }
+        return expr_lhs;
     }
 
 std::optional<Node_stmt*> Parser::Parse_stmt() {
     while(search().has_value()){
+        if(search().has_value() && search().value().type == TokenType::open_curly){
+            if(std::optional<Node_stmt_scope*> scope = Parse_scope()){
+                auto stmt = m_allocator.alloc<Node_stmt>();
+                stmt->stmt_var = scope.value();
+                return stmt;
+            }
+        }
+        if(search().value().type == TokenType::_if){
+            retrieve_token();
+            auto stmt_if = m_allocator.alloc<Node_stmt_if>();
+            if(search().has_value() && search().value().type == TokenType::open_paren){
+                retrieve_token();
+                if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(1).value().type == TokenType::equals && search(2).has_value() &&
+                   search(2).value().type==TokenType::equals && search(3).has_value() && search(3).value().type==TokenType::int_lit){
+                    stmt_if->ident = retrieve_token();
+                    retrieve_token();
+                    retrieve_token();
+                }
+                if(std::optional<Node_expr*> expr = Parse_expr()){
+                    stmt_if->expr = expr.value();
+                }else{
+                    std::cerr << "Failed to parse if statement expresion" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                std::cerr << "Missing '('" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(search().has_value() && search().value().type == TokenType::close_paren){
+                retrieve_token();
+                if(std::optional<Node_stmt_scope*> scope = Parse_scope()){
+                    stmt_if->scope = scope.value();
+                }else{
+                    std::cerr << "Scope in if statement could not be parsed" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                std::cerr << "Missing ')'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            auto stmt = m_allocator.alloc<Node_stmt>();
+            stmt->stmt_var = stmt_if;
+            return stmt;
+        }
+        if(search().value().type == TokenType::_print){
+            retrieve_token();
+            if(search().value().type == TokenType::open_paren){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected '('" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(search().value().type == TokenType::quote){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected '\"'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            auto node_stmt_print = m_allocator.alloc<Node_stmt_print>();
+            node_stmt_print->msg.value = search().value().value;
+            auto node_stmt = m_allocator.alloc<Node_stmt>();
+            node_stmt->stmt_var = node_stmt_print;
+            retrieve_token();
+            if(search().value().type == TokenType::quote){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected '\"'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(search().value().type == TokenType::close_paren){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected ')'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(search().value().type == TokenType::semi){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected ';'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            return node_stmt;
+        }
         if(search().value().type == TokenType::_return){
             retrieve_token();
             auto node_stmt_return = m_allocator.alloc<Node_stmt_return>();
@@ -208,26 +370,6 @@ std::optional<Node_prog> Parser::Parse_prog() {
     return prog;
 }
 
-std::optional<Node_OperationExpr*> Parser::Parse_operation_expr() {
-    if (auto lhs = Parse_expr()){
-        auto op_expr = m_allocator.alloc<Node_OperationExpr>();
-        if (search().has_value() && search().value().type == TokenType::plus){
-            auto op_expr_add = m_allocator.alloc<Node_OperationExprAdd>();
-            op_expr_add->lhs = lhs.value();
-            retrieve_token();
-            if(auto rhs = Parse_expr()){
-                op_expr_add->rhs = rhs.value();
-                op_expr->operation_var = op_expr_add;
-                retrieve_token();
-                return op_expr;
-            }else{
-                std::cerr << "Expected expression" << std::endl;
-            }
-        }
-    }else{
-        return {};
-    }
-}
 
 std::optional<Node_term*> Parser::Parse_term() {
     if(search().has_value() && search().value().type == TokenType::int_lit){
@@ -242,10 +384,60 @@ std::optional<Node_term*> Parser::Parse_term() {
         auto node_term = m_allocator.alloc<Node_term>();
         node_term->term_var=node_term_ident;
         return node_term;
+    }else if(search().has_value() && search().value().type == TokenType::open_paren){
+        retrieve_token();
+        std::optional<Node_expr*> expr = Parse_expr();
+        if(!expr.has_value()){
+            std::cerr << "Expected an expression" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        if(retrieve_token().type==TokenType::close_paren){
+            auto term_paren = m_allocator.alloc<Node_term_paren>();
+            term_paren->expr = expr.value();
+            auto term = m_allocator.alloc<Node_term>();
+            term->term_var=term_paren;
+            return term;
+        }else{
+            std::cerr << "Expected ')'" << std::endl;
+            exit(EXIT_FAILURE);
+        }
     }
     else{
         return {};
     }
+}
+
+std::optional<int> Parser::find_prece(TokenType type) {
+    switch(type){
+        case TokenType::plus:
+        case TokenType::minus:
+            return 1;
+        case TokenType::times:
+        case TokenType::slash:
+            return 2;
+        default:
+            return {};
+    }
+}
+
+std::optional<Node_stmt_scope*> Parser::Parse_scope() {
+    if(!search().has_value() && search()->type == TokenType::open_curly){
+        return {};
+    }
+    retrieve_token();
+    auto scope = m_allocator.alloc<Node_stmt_scope>();
+    while(std::optional<Node_stmt*> stmt = Parse_stmt()){
+        scope->stmts.push_back(stmt.value());
+        if(search().has_value() && search()->type == TokenType::close_curly){
+            retrieve_token();
+            break;
+        }
+        if(!stmt.has_value()){
+            std::cerr << "Invalid scope" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    return scope;
 }
 
 

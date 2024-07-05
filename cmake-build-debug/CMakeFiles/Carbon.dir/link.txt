@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/Carbon.dir/src/main.cpp.o -o Carbon 
+/usr/bin/c++ -g -g CMakeFiles/Carbon.dir/src/main.cpp.o -o Carbon 

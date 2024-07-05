@@ -25,6 +25,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /usr/include/c++/13/bits/cpp_type_traits.h \
   /usr/include/c++/13/bits/cxxabi_forced.h \
   /usr/include/c++/13/bits/cxxabi_init_exception.h \
+  /usr/include/c++/13/bits/deque.tcc \
   /usr/include/c++/13/bits/enable_special_members.h \
   /usr/include/c++/13/bits/erase_if.h \
   /usr/include/c++/13/bits/exception.h \
@@ -67,6 +68,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /usr/include/c++/13/bits/stl_algobase.h \
   /usr/include/c++/13/bits/stl_bvector.h \
   /usr/include/c++/13/bits/stl_construct.h \
+  /usr/include/c++/13/bits/stl_deque.h \
   /usr/include/c++/13/bits/stl_function.h \
   /usr/include/c++/13/bits/stl_iterator.h \
   /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
@@ -74,6 +76,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /usr/include/c++/13/bits/stl_map.h \
   /usr/include/c++/13/bits/stl_multimap.h \
   /usr/include/c++/13/bits/stl_pair.h \
+  /usr/include/c++/13/bits/stl_stack.h \
   /usr/include/c++/13/bits/stl_tree.h \
   /usr/include/c++/13/bits/stl_uninitialized.h \
   /usr/include/c++/13/bits/stl_vector.h \
@@ -97,6 +100,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /usr/include/c++/13/cwctype \
   /usr/include/c++/13/debug/assertions.h \
   /usr/include/c++/13/debug/debug.h \
+  /usr/include/c++/13/deque \
   /usr/include/c++/13/exception \
   /usr/include/c++/13/ext/aligned_buffer.h \
   /usr/include/c++/13/ext/alloc_traits.h \
@@ -117,6 +121,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /usr/include/c++/13/ostream \
   /usr/include/c++/13/pstl/pstl_config.h \
   /usr/include/c++/13/sstream \
+  /usr/include/c++/13/stack \
   /usr/include/c++/13/stdexcept \
   /usr/include/c++/13/streambuf \
   /usr/include/c++/13/string \
@@ -319,10 +324,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
-/usr/include/x86_64-linux-gnu/gnu/stubs.h:
-
-/usr/include/x86_64-linux-gnu/bits/endian.h:
-
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
 /usr/include/x86_64-linux-gnu/bits/byteswap.h:
@@ -345,6 +346,14 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/features.h:
 
+/usr/include/ctype.h:
+
+/usr/include/c++/13/vector:
+
+/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
+
+/usr/include/c++/13/type_traits:
+
 /usr/include/c++/13/debug/debug.h:
 
 /usr/include/c++/13/stdexcept:
@@ -361,14 +370,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/memoryfwd.h:
 
-/usr/include/c++/13/bits/erase_if.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
-
-/usr/include/c++/13/cstddef:
-
-/usr/include/c++/13/vector:
-
 /usr/include/wchar.h:
 
 /usr/include/c++/13/bits/memory_resource.h:
@@ -381,8 +382,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/locale_classes.h:
 
-/usr/include/ctype.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
 /usr/include/c++/13/bits/char_traits.h:
@@ -393,19 +392,19 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/ios_base.h:
 
+/usr/include/c++/13/bits/erase_if.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+/usr/include/c++/13/cstddef:
+
 /usr/include/c++/13/bits/hash_bytes.h:
 
 /usr/include/features-time64.h:
 
 /usr/include/c++/13/string_view:
 
-/usr/include/errno.h:
-
-/usr/include/c++/13/bits/functional_hash.h:
-
 /usr/include/c++/13/backward/binders.h:
-
-/usr/include/c++/13/bits/stringfwd.h:
 
 /usr/include/c++/13/bits/codecvt.h:
 
@@ -416,6 +415,10 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/bits/ranges_cmp.h:
 
 /usr/include/c++/13/iosfwd:
+
+/usr/include/c++/13/bits/stringfwd.h:
+
+/usr/include/c++/13/bits/stl_stack.h:
 
 /usr/include/c++/13/cwchar:
 
@@ -447,10 +450,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/locale_facets.h:
 
-/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
-
-/usr/include/c++/13/type_traits:
-
 /usr/include/alloca.h:
 
 /usr/include/c++/13/bit:
@@ -458,6 +457,12 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/bits/basic_string.tcc:
 
 /usr/include/c++/13/bits/enable_special_members.h:
+
+/usr/include/c++/13/bits/nested_exception.h:
+
+/usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h:
+
+/usr/include/c++/13/bits/basic_ios.tcc:
 
 /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h:
 
@@ -467,19 +472,9 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/fstream.tcc:
 
-/usr/include/c++/13/bits/alloc_traits.h:
-
-/usr/include/c++/13/bits/concept_check.h:
-
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
 /usr/include/c++/13/bits/basic_ios.h:
-
-/usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h:
-
-/usr/include/c++/13/bits/basic_ios.tcc:
-
-/usr/include/c++/13/bits/nested_exception.h:
 
 /usr/include/c++/13/bits/ranges_base.h:
 
@@ -499,6 +494,20 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/cpp_type_traits.h:
 
+/usr/include/c++/13/bits/alloc_traits.h:
+
+/usr/include/c++/13/bits/concept_check.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs.h:
+
+/usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/c++/13/bits/deque.tcc:
+
+/usr/include/c++/13/ext/type_traits.h:
+
+/usr/include/c++/13/iostream:
+
 /usr/include/c++/13/bits/cxxabi_forced.h:
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
@@ -509,9 +518,15 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/exception.h:
 
+/usr/include/c++/13/typeinfo:
+
+/usr/include/c++/13/bits/cxxabi_init_exception.h:
+
 /usr/include/c++/13/bits/locale_facets.tcc:
 
 /usr/include/c++/13/bits/requires_hosted.h:
+
+/usr/include/c++/13/bits/stl_deque.h:
 
 /usr/include/c++/13/bits/string_view.tcc:
 
@@ -569,6 +584,12 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/optional:
 
+/usr/include/errno.h:
+
+/usr/include/c++/13/bits/functional_hash.h:
+
+/usr/include/c++/13/stack:
+
 /usr/include/c++/13/bits/postypes.h:
 
 /usr/include/c++/13/bits/std_abs.h:
@@ -592,6 +613,12 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/bits/stl_function.h:
 
 /usr/include/c++/13/bits/utility.h:
+
+/usr/include/c++/13/deque:
+
+/usr/include/c++/13/variant:
+
+/usr/include/c++/13/bits/vector.tcc:
 
 /usr/include/c++/13/clocale:
 
@@ -635,10 +662,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/ext/string_conversions.h:
 
-/usr/include/c++/13/ext/type_traits.h:
-
-/usr/include/c++/13/iostream:
-
 /usr/include/c++/13/initializer_list:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
@@ -660,11 +683,3 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/bits/range_access.h:
 
 /usr/include/c++/13/system_error:
-
-/usr/include/c++/13/bits/cxxabi_init_exception.h:
-
-/usr/include/c++/13/typeinfo:
-
-/usr/include/c++/13/bits/vector.tcc:
-
-/usr/include/c++/13/variant:
