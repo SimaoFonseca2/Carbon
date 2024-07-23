@@ -32,7 +32,7 @@ Carbon is a programming language designed, in C++, as a learning project. The na
 To get started with Carbon, you'll need a Linux operating system with `nasm` (Netwide Assembler) and `ld` (GNU Linker) installed. Follow these steps to clone the repository and build the compiler:
 
 ```bash
-git clone https://github.com/SimaoFonseca2/Carbon
+git clone https://github.com/SimaoFonseca2/Carbon --recursive
 cd Carbon
 mkdir build
 cmake -S . -B build
@@ -55,7 +55,7 @@ let x = 10;
 Note: The variables are only 1 byte sized for now and other types like strings are being developed.
 ### Control Structures
 
-Carbon includes basic control structures like `if`, and `for`(still in progress). Here’s how you can use them:
+Carbon includes basic control structures like `if`, and `for`. Here’s how you can use them:
 
 ```carbon
 if (x == 5) {
@@ -66,7 +66,7 @@ for (let i = 0; i < 10; i++) {
     // Code to execute in the loop
 }
 ```
-
+Note: For loops only support less than `<` operations
 ### Functions
 
 Functions in Carbon are not implemented for now as basic variables and control structures need either to be polished or implemented before functions can be implemented in a clean way.
@@ -147,6 +147,7 @@ While Carbon is primarily an educational project, there are aspirations to:
 
 ## Known Bugs
 - Declaring a for loop inside another for loops scope will cause undefined behaviour.
+- Using print inside for loops cause undefined behaviour if you give it a string as an argument but will work fine with variables
 - Return statement will only return values that can fit in 8 bytes(higher values than 255 will overflow into back to 0).
 
 ## License
