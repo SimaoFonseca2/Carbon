@@ -115,9 +115,18 @@ Here's a simple "Hello, World!" program in Carbon:
     return 0;
 ```
 
+You may also use the `print` function to print the value of a variable by doing:
+
+```carbon
+	let x = 1;
+    print(x);
+    return 0;
+```
+Note: You can't use \n to do a breakline yet.
+
 ## Testing
 
-Unit tests will be done using the GoogleTest library soon. 
+Basic unit tests are implemented for the lexer, parser, and assemblygen classes using gtest library. 
 
 ## Contribution Guidelines
 
@@ -128,7 +137,6 @@ We welcome contributions from the community! Here’s how you can get involved:
 4. **Implement Changes**: Fix issues, add features, or improve documentation.
 5. **Submit a Pull Request**: Once your changes are ready, submit a pull request for review.
 
-For more detailed guidelines, refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file in the repository.
 
 ## Future Goals
 
@@ -136,6 +144,10 @@ While Carbon is primarily an educational project, there are aspirations to:
 - **Expand Language Features**: Add more complex constructs and capabilities to the language.
 - **Achieve Self-Hosting**: Develop the compiler to a point where it can compile its own source code.
 - **Enhance Learning Materials**: Create tutorials and resources to help others learn from the project.
+
+## Known Bugs
+- Declaring a for loop inside another for loops scope will cause undefined behaviour.
+- Return statement will only return values that can fit in 8 bytes(higher values than 255 will overflow into back to 0).
 
 ## License
 

@@ -1,8 +1,1 @@
-let x = 1;
-x=22;
-if(x==22){
-    let z = 23;
-    if(z==23){
-       print("nice");
-    }
-}
+let x=5;

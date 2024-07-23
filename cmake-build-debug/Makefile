@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/lazylinux/Carbon/cmake-build-debug
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -84,6 +94,51 @@ rebuild_cache:
 # Special rule for the target rebuild_cache
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"gmock\" \"gtest\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -129,6 +184,167 @@ Carbon/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Carbon.dir/build.make CMakeFiles/Carbon.dir/build
 .PHONY : Carbon/fast
 
+#=============================================================================
+# Target rules for targets named CarbonTest
+
+# Build rule for target.
+CarbonTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CarbonTest
+.PHONY : CarbonTest
+
+# fast build rule for target.
+CarbonTest/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/build
+.PHONY : CarbonTest/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) $(MAKESILENT) -f googletest/googlemock/CMakeFiles/gmock.dir/build.make googletest/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) $(MAKESILENT) -f googletest/googlemock/CMakeFiles/gmock_main.dir/build.make googletest/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) $(MAKESILENT) -f googletest/googletest/CMakeFiles/gtest.dir/build.make googletest/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) $(MAKESILENT) -f googletest/googletest/CMakeFiles/gtest_main.dir/build.make googletest/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+Tests/TestAssemblyGen.o: Tests/TestAssemblyGen.cpp.o
+.PHONY : Tests/TestAssemblyGen.o
+
+# target to build an object file
+Tests/TestAssemblyGen.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestAssemblyGen.cpp.o
+.PHONY : Tests/TestAssemblyGen.cpp.o
+
+Tests/TestAssemblyGen.i: Tests/TestAssemblyGen.cpp.i
+.PHONY : Tests/TestAssemblyGen.i
+
+# target to preprocess a source file
+Tests/TestAssemblyGen.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestAssemblyGen.cpp.i
+.PHONY : Tests/TestAssemblyGen.cpp.i
+
+Tests/TestAssemblyGen.s: Tests/TestAssemblyGen.cpp.s
+.PHONY : Tests/TestAssemblyGen.s
+
+# target to generate assembly for a file
+Tests/TestAssemblyGen.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestAssemblyGen.cpp.s
+.PHONY : Tests/TestAssemblyGen.cpp.s
+
+Tests/TestLexer.o: Tests/TestLexer.cpp.o
+.PHONY : Tests/TestLexer.o
+
+# target to build an object file
+Tests/TestLexer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestLexer.cpp.o
+.PHONY : Tests/TestLexer.cpp.o
+
+Tests/TestLexer.i: Tests/TestLexer.cpp.i
+.PHONY : Tests/TestLexer.i
+
+# target to preprocess a source file
+Tests/TestLexer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestLexer.cpp.i
+.PHONY : Tests/TestLexer.cpp.i
+
+Tests/TestLexer.s: Tests/TestLexer.cpp.s
+.PHONY : Tests/TestLexer.s
+
+# target to generate assembly for a file
+Tests/TestLexer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestLexer.cpp.s
+.PHONY : Tests/TestLexer.cpp.s
+
+Tests/TestMain.o: Tests/TestMain.cpp.o
+.PHONY : Tests/TestMain.o
+
+# target to build an object file
+Tests/TestMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestMain.cpp.o
+.PHONY : Tests/TestMain.cpp.o
+
+Tests/TestMain.i: Tests/TestMain.cpp.i
+.PHONY : Tests/TestMain.i
+
+# target to preprocess a source file
+Tests/TestMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestMain.cpp.i
+.PHONY : Tests/TestMain.cpp.i
+
+Tests/TestMain.s: Tests/TestMain.cpp.s
+.PHONY : Tests/TestMain.s
+
+# target to generate assembly for a file
+Tests/TestMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestMain.cpp.s
+.PHONY : Tests/TestMain.cpp.s
+
+Tests/TestParser.o: Tests/TestParser.cpp.o
+.PHONY : Tests/TestParser.o
+
+# target to build an object file
+Tests/TestParser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestParser.cpp.o
+.PHONY : Tests/TestParser.cpp.o
+
+Tests/TestParser.i: Tests/TestParser.cpp.i
+.PHONY : Tests/TestParser.i
+
+# target to preprocess a source file
+Tests/TestParser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestParser.cpp.i
+.PHONY : Tests/TestParser.cpp.i
+
+Tests/TestParser.s: Tests/TestParser.cpp.s
+.PHONY : Tests/TestParser.s
+
+# target to generate assembly for a file
+Tests/TestParser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/CarbonTest.dir/build.make CMakeFiles/CarbonTest.dir/Tests/TestParser.cpp.s
+.PHONY : Tests/TestParser.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -160,8 +376,30 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... Carbon"
+	@echo "... CarbonTest"
+	@echo "... gmock"
+	@echo "... gmock_main"
+	@echo "... gtest"
+	@echo "... gtest_main"
+	@echo "... Tests/TestAssemblyGen.o"
+	@echo "... Tests/TestAssemblyGen.i"
+	@echo "... Tests/TestAssemblyGen.s"
+	@echo "... Tests/TestLexer.o"
+	@echo "... Tests/TestLexer.i"
+	@echo "... Tests/TestLexer.s"
+	@echo "... Tests/TestMain.o"
+	@echo "... Tests/TestMain.i"
+	@echo "... Tests/TestMain.s"
+	@echo "... Tests/TestParser.o"
+	@echo "... Tests/TestParser.i"
+	@echo "... Tests/TestParser.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

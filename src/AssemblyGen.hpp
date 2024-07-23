@@ -2,7 +2,7 @@
 #define CARBON_ASSEMBLYGEN_HPP
 
 #include <sstream>
-#include "Parser.hpp"
+#include "Node.hpp"
 #include <map>
 #include <stack>
 
@@ -32,10 +32,15 @@ private:
     std::string let_stmt_value;
     std::stack<std::map<std::string, Var>> scope_stack;
     int n_labels = 0;
-    std::map<std::string,std::optional<std::string>> terms;
+    int loop_count = -1;
     std::map<std::string, std::string> global_stack_locations;
     std::map<std::string, int> var_index;
     int index = 0;
+    std::stringstream m_data;
+    std::map<std::string, int> for_loops;
+    std::map<int, std::map<std::string, int>> loop_list;
+    int numCounter = 0;
+    bool forflag = false;
 };
 
 AssemblyGen::AssemblyGen(Node_prog program): m_program(std::move(program)){
@@ -43,14 +48,19 @@ AssemblyGen::AssemblyGen(Node_prog program): m_program(std::move(program)){
 }
 
 [[nodiscard]] std::string AssemblyGen::gen_prog(){
-
-    m_output << "global _start\n_start:\n";
+    m_output << "global _start\n";
+    m_output << "section .text\n";
+    m_output << "_start:\n";
     for(const Node_stmt& stmt : m_program.stmts){
         gen_stmt(stmt);
     }
-    m_output << "     mov rax, 60\n";
-    m_output << "     mov rdi, 0\n";
-    m_output << "     syscall";
+    m_output << "    mov rax, 60\n"
+                "    mov rdi, 0\n"
+                "    syscall\n";
+    m_output << "section .data\n";
+    m_output << "   " << m_data.str() <<"\n";
+    m_output << "section .bss\n";
+    m_output << "   num_str resb 20\n";
     return m_output.str();
 }
 
@@ -74,13 +84,6 @@ void inline AssemblyGen::gen_stmt(const Node_stmt& stmt) {
                 assemblyGen->scope_stack.top().insert({let_stmt->ident.value.value(), Var{.stack_location=assemblyGen->stack_size}});
                 assemblyGen->gen_expr(*let_stmt->expr);
             }
-            /*if(assemblyGen->variables.contains(let_stmt->ident.value.value())){
-                std::cerr << "Identifier already used: " << let_stmt->ident.value.value() << std::endl;
-                exit(EXIT_FAILURE);
-            }else{
-                assemblyGen->variables.insert({let_stmt->ident.value.value(), Var{.stack_location=assemblyGen->stack_size}});
-                assemblyGen->gen_expr(*let_stmt->expr);
-            }*/
         }
         void operator()(const Node_stmt_ident* ident_stmt) const {
             if(assemblyGen->scope_stack.top().contains(ident_stmt->ident.value.value())){
@@ -91,14 +94,6 @@ void inline AssemblyGen::gen_stmt(const Node_stmt& stmt) {
                 std::cerr << "Identifier doesn't exist: " << ident_stmt->ident.value.value() << std::endl;
                 exit(EXIT_FAILURE);
             }
-
-            /*if(assemblyGen->variables.contains(ident_stmt->ident.value.value())){
-                assemblyGen->isIdentStmt = true;
-                assemblyGen->ident_stmt_value = ident_stmt->ident.value.value();
-                assemblyGen->gen_expr(*ident_stmt->expr);
-            }else{
-                std::cerr << "Identifier doesn't exist: " << ident_stmt->ident.value.value() << std::endl;
-            }*/
         }
         void operator()(const Node_stmt_scope* scope_stmt) const {
             assemblyGen->gen_scope(scope_stmt);
@@ -136,19 +131,155 @@ void inline AssemblyGen::gen_stmt(const Node_stmt& stmt) {
             }
         }
         void operator()(const Node_stmt_print* stmt_print) const {
-            static int numCounter = 0;
-            std::string msgLabel = "msg" + std::to_string(numCounter);
-            assemblyGen->m_output << "    mov eax, 4\n"
-                                     "    mov ebx, 1\n"
-                                     "    mov ecx, "<<msgLabel<<"\n"
-                                     "    mov edx, "<<stmt_print->msg.value.value().size()<<"\n"
-                                     "    int 0x80\n"
-                                     "\n"
-                                     "    mov eax, 1\n"
-                                     "    xor ebx, ebx\n"
-                                     "    int 0x80\n"
-                                      <<msgLabel<<" db '"<< stmt_print->msg.value.value() <<"', 0xA\n";
-            numCounter++;
+
+            if(stmt_print->msg.type==TokenType::string){
+                std::string msgLabel = "     msg" + std::to_string(assemblyGen->numCounter);
+                assemblyGen->m_output << "    mov rax, 1\n"
+                                         "    mov rdi, 1\n"
+                                         "    mov rsi, "<<msgLabel<<"\n"
+                                                                    "    mov rdx, "<<stmt_print->msg.value.value().size()+1<<"\n"
+                                                                                                                           "    syscall\n";
+
+                assemblyGen->m_data<<msgLabel<<" db '"<< stmt_print->msg.value.value() <<"'\n";
+                assemblyGen->numCounter++;
+            }
+            if(stmt_print->msg.type==TokenType::ident){
+                auto index = assemblyGen->var_index.find(*stmt_print->msg.value);
+                auto pos = assemblyGen->global_stack_locations.find(*stmt_print->msg.value);
+                auto loop_pos = assemblyGen->for_loops.find(*stmt_print->msg.value);
+                std::string str = std::string("[rsp + ") + std::to_string((assemblyGen->stack_size-index->second-1)*8) + "]";
+                pos->second = str;
+                if(index == assemblyGen->var_index.end()){
+                    std::cerr<<"Identifier: "<<*stmt_print->msg.value<<" does not exits"<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                 assemblyGen->m_output << " mov rax, " << pos->second << "\n"
+                                        "   mov rdi, num_str + 20\n"
+                                        "   mov rcx, 10\n"
+                                        "convert_loop"<<assemblyGen->numCounter<<":\n"
+                                        "   dec rdi\n"
+                                        "   xor rdx, rdx\n"
+                                        "   div rcx\n"
+                                        "   add dl, '0'\n"
+                                        "   mov [rdi], dl\n"
+                                        "   test rax, rax\n"
+                                        "   jnz convert_loop"<<assemblyGen->numCounter<<"\n"
+                                        "   mov rsi, rdi\n"
+                                        "   mov rdx, num_str + 20\n"
+                                        "   sub rdx, rsi\n"
+                                        "   mov rax, 1\n"
+                                        "   mov rdi, 1\n"
+                                        "   syscall\n";
+
+                assemblyGen->numCounter++;
+            }
+
+        }
+        void operator()(const Node_stmt_incr* stmt_incr) const {
+            if(assemblyGen->scope_stack.top().contains(stmt_incr->ident.value.value())){
+                auto index = assemblyGen->var_index.find(*stmt_incr->ident.value);
+                auto pos = assemblyGen->global_stack_locations.find(*stmt_incr->ident.value);
+                std::string str = std::string("QWORD [rsp + ") + std::to_string((assemblyGen->stack_size-index->second-1)*8) + "]";
+                pos->second = str;
+                assemblyGen->m_output << "    inc " << pos->second << "\n";
+            }else{
+                std::cerr << "Identifier doesn't exist: " << stmt_incr->ident.value.value() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+        void operator()(const Node_stmt_decr* stmt_decr) const {
+            if(assemblyGen->scope_stack.top().contains(stmt_decr->ident.value.value())){
+                auto index = assemblyGen->var_index.find(*stmt_decr->ident.value);
+                auto pos = assemblyGen->global_stack_locations.find(*stmt_decr->ident.value);
+                std::string str = std::string("QWORD [rsp + ") + std::to_string((assemblyGen->stack_size-index->second-1)*8) + "]";
+                pos->second = str;
+                assemblyGen->m_output << "    dec " << pos->second << "\n";
+            }else{
+                std::cerr << "Identifier doesn't exist: " << stmt_decr->ident.value.value() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+        void operator()(const Node_stmt_for* stmt_for) const {
+                struct Visitor_stmt_for_first {
+                    AssemblyGen* assemblyGen;
+                    const Node_stmt_for* stmt_for;
+                    void operator()(const Node_stmt_let* let_stmt) const {
+                        if(assemblyGen->scope_stack.top().contains(let_stmt->ident.value.value())){
+                            std::cerr << "Identifier already used: " << let_stmt->ident.value.value() << std::endl;
+                            exit(EXIT_FAILURE);
+                        }else{
+                            if(let_stmt->ident.value != stmt_for->ident.value){
+                                std::cerr<<"Expected '"<<let_stmt->ident.value.value()<<"' but got '"<<stmt_for->ident.value.value()<<"'"<<std::endl;
+                                exit(EXIT_FAILURE);
+                            }
+                            assemblyGen->global_stack_locations.insert_or_assign(let_stmt->ident.value.value(),"QWORD [rsp + " + std::to_string(assemblyGen->stack_size)+ "]");
+                            assemblyGen->var_index.insert({let_stmt->ident.value.value(),assemblyGen->index});
+                            assemblyGen->index++;
+                            assemblyGen->scope_stack.top().insert({let_stmt->ident.value.value(), Var{.stack_location=assemblyGen->stack_size}});
+                            assemblyGen->gen_expr(*let_stmt->expr);
+                        }
+                    }
+                    void operator()(const Node_stmt_ident* stmt_ident) const {
+                        if(stmt_ident->ident.value != stmt_for->ident.value){
+                            std::cerr<<"Expected '"<<stmt_ident->ident.value.value()<<"' but got '"<<stmt_for->ident.value.value()<<"'"<<std::endl;
+                            exit(EXIT_FAILURE);
+                        }
+                        if(assemblyGen->scope_stack.top().contains(stmt_ident->ident.value.value())){
+                            assemblyGen->isIdentStmt = true;
+                            assemblyGen->ident_stmt_value = stmt_ident->ident.value.value();
+                            assemblyGen->gen_expr(*stmt_ident->expr);
+                        }else{
+                            std::cerr << "Identifier doesn't exist: " << stmt_ident->ident.value.value() << std::endl;
+                            exit(EXIT_FAILURE);
+                        }
+                    }
+                };
+                Visitor_stmt_for_first visitorStmtFor_first{.assemblyGen=assemblyGen,.stmt_for = stmt_for};
+                std::visit(visitorStmtFor_first, stmt_for->first_expr_var);
+                auto index = assemblyGen->var_index.find(*stmt_for->ident.value);
+                if(index == assemblyGen->var_index.end()){
+                    std::cerr<< "Identifier: "<<*stmt_for->ident.value<<" does not exist"<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                auto pos = assemblyGen->global_stack_locations.find(*stmt_for->ident.value);
+
+                std::string str = std::string("QWORD [rsp + ") + std::to_string((assemblyGen->stack_size-index->second-1)*8) + "]";
+                pos->second = str;
+                assemblyGen->m_output << "    mov rcx, " << pos->second << "\n";
+                assemblyGen->loop_count++;
+                assemblyGen->for_loops.insert_or_assign(*stmt_for->ident.value, assemblyGen->loop_count);
+
+                assemblyGen->m_output << "loop"<<assemblyGen->loop_count<<":"<<"\n";
+                assemblyGen->push("rcx");
+                int previous_loop_count = assemblyGen->loop_count;
+                assemblyGen->gen_scope(stmt_for->scope);
+                if(assemblyGen->loop_count!=previous_loop_count){
+                    assemblyGen->forflag = true;
+                }
+                assemblyGen->pop("rcx");
+
+                struct Visitor_stmt_for_third {
+                    AssemblyGen* assemblyGen;
+                    void operator()(const Node_stmt_incr* stmt_incr) const {
+                        assemblyGen->m_output<<"inc rcx\n";
+                    }
+                    void operator()(const Node_stmt_decr* stmt_decr) const {
+                        assemblyGen->m_output<<"dec rcx\n";
+                    }
+                };
+                Visitor_stmt_for_third visitorStmtFor_third{.assemblyGen=assemblyGen};
+                std::visit(visitorStmtFor_third, stmt_for->third_expr_var);
+                int value = 0;
+                if(assemblyGen->forflag){
+                    value = 1;
+                }
+                assemblyGen->forflag =false;
+                std::string str_loop = std::string("QWORD [rsp + ") + std::to_string((assemblyGen->stack_size-index->second+(assemblyGen->loop_count*value)-1)*8) + "]";
+                assemblyGen->m_output<<"mov " << str_loop <<", "<< "rcx\n";
+                assemblyGen->m_output<<"cmp rcx, " << stmt_for->op.value.value() << "\n";
+                if(stmt_for->op.type == TokenType::smaller){
+                    assemblyGen->m_output<<"jne "<<"loop"<<assemblyGen->loop_count<<"\n";
+                }
         }
     };
     Visitor_stmt visitorStmt{.assemblyGen=this};
@@ -191,29 +322,24 @@ void inline AssemblyGen::gen_term(const Node_term *term) {
             }else{
                 assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], "<< term_intlit->int_lit.value.value() << "\n";
                 assemblyGen->global_stack_locations.insert_or_assign(term_intlit->int_lit.value.value(),"QWORD [rsp + " + std::to_string((assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8)+ "]");
-               // assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->variables.at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], "<< term_intlit->int_lit.value.value() << "\n";
                 assemblyGen->isIdentStmt=false;
             }
         }
         void operator()(const Node_term_ident* term_ident) const{
-            /*if(!assemblyGen->variables.contains(term_ident->ident.value.value())){
-                std::cerr << "Undeclared identifier: " << term_ident->ident.value.value();
-                exit(EXIT_FAILURE);
-            }*/
             if(!assemblyGen->scope_stack.top().contains(term_ident->ident.value.value())){
                 std::cerr << "Undeclared identifier: " << term_ident->ident.value.value();
                 exit(EXIT_FAILURE);
             }
             if(assemblyGen->isIdentStmt && assemblyGen->scope_stack.top().contains(term_ident->ident.value.value())){
                 assemblyGen->m_output << "      mov rax, QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], "<< "\n";
-                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], rax"<< "\n"; //this is a place holder
+                assemblyGen->m_output << "      mov QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8 << "], rax"<< "\n";
                 assemblyGen->isIdentStmt=false;
             }else if(assemblyGen->scope_stack.top().contains(term_ident->ident.value.value())){
                 std::stringstream stack_off;
                 if(!assemblyGen->ident_stmt_value.empty()){
                     assemblyGen->global_stack_locations.insert_or_assign(assemblyGen->ident_stmt_value,"QWORD [rsp + " + std::to_string((assemblyGen->stack_size - assemblyGen->scope_stack.top().at(assemblyGen->ident_stmt_value).stack_location-1) * 8)+ "]");
                 }
-                stack_off << "      QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(term_ident->ident.value.value()).stack_location-1) * 8 << "]\n";
+                stack_off << "  QWORD [rsp + " << (assemblyGen->stack_size - assemblyGen->scope_stack.top().at(term_ident->ident.value.value()).stack_location-1) * 8 << "]\n";
                 assemblyGen->push(stack_off.str());
             }
         }
@@ -270,15 +396,13 @@ std::string inline AssemblyGen::create_label() {
 }
 
 void inline AssemblyGen::gen_scope(const Node_stmt_scope *scope) {
-    //open scope
-    scope_stack.push({});
-    //assemblyGen->scope_sizes.push_back(assemblyGen->variables.size());
+    auto previous_stack = scope_stack.top();
+    scope_stack.push(previous_stack);
     for(const Node_stmt* stmt : scope->stmts){
         gen_stmt(*stmt);
     }
-    //close scope
-    size_t count = scope_stack.top().size();
-    m_output <<"       add rsp, " << count * 8 << "\n"; //stack grows downwards so addition is needed to pop out of it;
+    size_t count = scope_stack.top().size() - previous_stack.size();
+    m_output <<"       add rsp, " << count * 8 << "\n";
     stack_size -= count;
     scope_stack.pop();
 }

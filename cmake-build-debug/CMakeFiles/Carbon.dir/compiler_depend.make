@@ -5,6 +5,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
   /home/lazylinux/Carbon/src/Allocator.hpp \
   /home/lazylinux/Carbon/src/AssemblyGen.hpp \
   /home/lazylinux/Carbon/src/Lexer.hpp \
+  /home/lazylinux/Carbon/src/Node.hpp \
   /home/lazylinux/Carbon/src/Parser.hpp \
   /home/lazylinux/Carbon/src/Token.h \
   /usr/include/alloca.h \
@@ -354,6 +355,10 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/type_traits:
 
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h:
+
+/usr/include/c++/13/tuple:
+
 /usr/include/c++/13/debug/debug.h:
 
 /usr/include/c++/13/stdexcept:
@@ -369,10 +374,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/time.h:
 
 /usr/include/c++/13/bits/memoryfwd.h:
-
-/usr/include/wchar.h:
-
-/usr/include/c++/13/bits/memory_resource.h:
 
 /usr/include/c++/13/bits/invoke.h:
 
@@ -392,33 +393,11 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/ios_base.h:
 
-/usr/include/c++/13/bits/erase_if.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
-
-/usr/include/c++/13/cstddef:
-
 /usr/include/c++/13/bits/hash_bytes.h:
 
 /usr/include/features-time64.h:
 
 /usr/include/c++/13/string_view:
-
-/usr/include/c++/13/backward/binders.h:
-
-/usr/include/c++/13/bits/codecvt.h:
-
-/usr/include/c++/13/bits/stl_vector.h:
-
-/usr/include/c++/13/bits/predefined_ops.h:
-
-/usr/include/c++/13/bits/ranges_cmp.h:
-
-/usr/include/c++/13/iosfwd:
-
-/usr/include/c++/13/bits/stringfwd.h:
-
-/usr/include/c++/13/bits/stl_stack.h:
 
 /usr/include/c++/13/cwchar:
 
@@ -428,6 +407,12 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /home/lazylinux/Carbon/src/main.cpp:
 
+/usr/include/wchar.h:
+
+/usr/include/c++/13/bits/memory_resource.h:
+
+/home/lazylinux/Carbon/src/Node.hpp:
+
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
 /usr/include/c++/13/cerrno:
@@ -435,12 +420,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/new:
 
 /usr/include/c++/13/ext/alloc_traits.h:
-
-/usr/include/c++/13/bits/ranges_util.h:
-
-/usr/include/asm-generic/errno-base.h:
-
-/home/lazylinux/Carbon/src/Lexer.hpp:
 
 /home/lazylinux/Carbon/src/Allocator.hpp:
 
@@ -472,6 +451,16 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/fstream.tcc:
 
+/usr/include/c++/13/backward/binders.h:
+
+/usr/include/c++/13/bits/stl_stack.h:
+
+/usr/include/c++/13/bits/stringfwd.h:
+
+/usr/include/c++/13/bits/codecvt.h:
+
+/usr/include/c++/13/bits/stl_vector.h:
+
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
 /usr/include/c++/13/bits/basic_ios.h:
@@ -494,6 +483,18 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/cpp_type_traits.h:
 
+/usr/include/c++/13/typeinfo:
+
+/usr/include/c++/13/bits/cxxabi_init_exception.h:
+
+/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
+
+/usr/include/c++/13/streambuf:
+
+/usr/include/c++/13/bits/exception.h:
+
 /usr/include/c++/13/bits/alloc_traits.h:
 
 /usr/include/c++/13/bits/concept_check.h:
@@ -510,17 +511,23 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 
 /usr/include/c++/13/bits/cxxabi_forced.h:
 
-/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+/usr/include/c++/13/bits/erase_if.h:
 
-/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
+/usr/include/c++/13/bits/predefined_ops.h:
 
-/usr/include/c++/13/streambuf:
+/usr/include/c++/13/iosfwd:
 
-/usr/include/c++/13/bits/exception.h:
+/usr/include/c++/13/bits/ranges_cmp.h:
 
-/usr/include/c++/13/typeinfo:
+/usr/include/asm-generic/errno-base.h:
 
-/usr/include/c++/13/bits/cxxabi_init_exception.h:
+/home/lazylinux/Carbon/src/Lexer.hpp:
+
+/usr/include/c++/13/bits/ranges_util.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+/usr/include/c++/13/cstddef:
 
 /usr/include/c++/13/bits/locale_facets.tcc:
 
@@ -645,10 +652,6 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
 /usr/include/c++/13/cstdio:
 
 /usr/include/c++/13/debug/assertions.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h:
-
-/usr/include/c++/13/tuple:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 

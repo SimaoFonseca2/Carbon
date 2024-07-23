@@ -6,6 +6,7 @@ CMakeFiles/Carbon.dir/src/main.cpp.o
  /home/lazylinux/Carbon/src/Allocator.hpp
  /home/lazylinux/Carbon/src/AssemblyGen.hpp
  /home/lazylinux/Carbon/src/Lexer.hpp
+ /home/lazylinux/Carbon/src/Node.hpp
  /home/lazylinux/Carbon/src/Parser.hpp
  /home/lazylinux/Carbon/src/Token.h
  /usr/include/alloca.h

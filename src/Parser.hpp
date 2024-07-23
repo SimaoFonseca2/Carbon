@@ -4,93 +4,8 @@
 #include <vector>
 #include "Token.h"
 #include "Allocator.hpp"
+#include "Node.hpp"
 #include <variant>
-struct Node_expr;
-
-
-struct Node_OperationExprAdd {
-    Node_expr* lhs;
-    Node_expr* rhs;
-};
-
-struct Node_OperationExprMulti {
-    Node_expr* lhs;
-    Node_expr* rhs;
-};
-
-struct Node_OperationExprDiv {
-    Node_expr* lhs;
-    Node_expr* rhs;
-};
-
-struct Node_OperationExprSub {
-    Node_expr* lhs;
-    Node_expr* rhs;
-};
-
-struct Node_OperationExpr {
-    std::variant<Node_OperationExprAdd*, Node_OperationExprMulti*, Node_OperationExprDiv*, Node_OperationExprSub*> operation_var;
-};
-
-struct Node_term_intlit{
-    Token int_lit;
-};
-
-struct Node_term_ident{
-    Token ident;
-};
-
-struct Node_term_paren {
-    Node_expr* expr;
-};
-
-struct Node_term {
-    std::variant<Node_term_intlit*, Node_term_ident*, Node_term_paren*> term_var;
-};
-
-struct Node_expr{
-std::variant<Node_term*,Node_OperationExpr*> expr_var;
-};
-
-struct Node_stmt_return{
-    Node_expr* expr;
-};
-
-struct Node_stmt_let{
-    Token ident;
-    Node_expr* expr{};
-};
-
-struct Node_stmt_ident{
-    Token ident;
-    Node_expr* expr{};
-};
-
-struct Node_stmt_print{
-    Token msg;
-};
-
-struct Node_stmt;
-
-struct Node_stmt_scope{
-    std::vector<Node_stmt*> stmts;
-};
-
-struct Node_stmt_if{
-    std::optional<Token> ident;
-    Node_expr* expr{};
-    Node_stmt_scope* scope{};
-};
-
-struct Node_stmt{
-    std::variant<Node_stmt_return*, Node_stmt_let*, Node_stmt_ident*, Node_stmt_scope*, Node_stmt_if*, Node_stmt_print*> stmt_var;
-};
-
-struct Node_prog{
-    std::vector<Node_stmt> stmts;
-};
-
-
 
 
 class Parser{
@@ -205,6 +120,9 @@ std::optional<Node_expr*> Parser::Parse_expr(int min_prece = 0) {
                 expr_lhs = new_expr_lhs;
                 break;
             }
+            case TokenType::smaller: {
+
+            }
             default:
                 break;
         }
@@ -245,6 +163,10 @@ std::optional<Node_stmt*> Parser::Parse_stmt() {
             }
             if(search().has_value() && search().value().type == TokenType::close_paren){
                 retrieve_token();
+                if(search(1).has_value() && search(1).value().type == TokenType::close_curly){
+                    std::cerr << "If scope cannot be empty" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
                 if(std::optional<Node_stmt_scope*> scope = Parse_scope()){
                     stmt_if->scope = scope.value();
                 }else{
@@ -259,7 +181,106 @@ std::optional<Node_stmt*> Parser::Parse_stmt() {
             stmt->stmt_var = stmt_if;
             return stmt;
         }
+        if(search().value().type == TokenType::_for){
+            auto stmt_for = m_allocator.alloc<Node_stmt_for>();
+            retrieve_token();
+            if(search().value().type == TokenType::open_paren){
+                retrieve_token();
+            }else{
+                std::cerr << "Expected '('" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(search().has_value() && search().value().type == TokenType::ident){
+                auto stmt_ident = m_allocator.alloc<Node_stmt_ident>();
+                stmt_ident->ident = retrieve_token();
+                if(search().has_value() && search().value().type == TokenType::equals){
+                    retrieve_token();
+                }else{
+                    std::cerr << "Expected '='" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                if (std::optional<Node_expr*> expr = Parse_expr()){
+                    stmt_ident->expr = expr.value();
+                }else{
+                    std::cerr << "Invalid expression" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                if(search().has_value() && search().value().type == TokenType::semi){
+                    retrieve_token();
+                    stmt_for->first_expr_var = stmt_ident;
+                }else{
+                    std::cerr << "Expected ';'" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+            if(search().has_value() && search().value().type == TokenType::_let && search(1).has_value() && search(1).value().type == TokenType::ident && search(2).has_value() &&
+               search(2).value().type==TokenType::equals && search(3).has_value()){
+                retrieve_token();
+                auto stmt_let = m_allocator.alloc<Node_stmt_let>();
+                stmt_let->ident=retrieve_token();
+                retrieve_token();
+                if (std::optional<Node_expr*> expr = Parse_expr()){
+                    stmt_let->expr = expr.value();
+                }else{
+                    std::cerr << "Invalid expression" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                if(search().has_value() && search().value().type == TokenType::semi){
+                    retrieve_token();
+                }else{
+                    std::cerr << "Expected ';'" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                stmt_for->first_expr_var = stmt_let;
+            }
+            if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(2).has_value()){
+                stmt_for->ident = retrieve_token();
+                stmt_for->op.type = retrieve_token().type;
+                stmt_for->op.value = retrieve_token().value;
+
+                if(search().has_value() && search().value().type == TokenType::semi){
+                    retrieve_token();
+                }else{
+                    std::cerr << "Expected ';'" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+            if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(1).value().type == TokenType::plus && search(2).has_value() && search(2).value().type == TokenType::plus){
+                auto stmt_incr = m_allocator.alloc<Node_stmt_incr>();
+                stmt_incr->ident = retrieve_token();
+                retrieve_token();
+                retrieve_token();
+                stmt_for->third_expr_var = stmt_incr;
+            }
+            if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(1).value().type == TokenType::minus && search(2).has_value() && search(2).value().type == TokenType::minus){
+                auto stmt_decr = m_allocator.alloc<Node_stmt_decr>();
+                stmt_decr->ident = retrieve_token();
+                retrieve_token();
+                retrieve_token();
+                stmt_for->third_expr_var = stmt_decr;
+            }
+            if(search().has_value() && search().value().type == TokenType::close_paren){
+                retrieve_token();
+                if(search(1).has_value() && search(1).value().type == TokenType::close_curly){
+                    std::cerr << "For scope cannot be empty" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                if(std::optional<Node_stmt_scope*> scope = Parse_scope()){
+                    stmt_for->scope = scope.value();
+                }else{
+                    std::cerr << "Scope in if statement could not be parsed" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                auto node_stmt = m_allocator.alloc<Node_stmt>();
+                node_stmt->stmt_var = stmt_for;
+                return node_stmt;
+            }else{
+                std::cerr << "Expected ')'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
         if(search().value().type == TokenType::_print){
+            auto node_stmt = m_allocator.alloc<Node_stmt>();
             retrieve_token();
             if(search().value().type == TokenType::open_paren){
                 retrieve_token();
@@ -269,21 +290,28 @@ std::optional<Node_stmt*> Parser::Parse_stmt() {
             }
             if(search().value().type == TokenType::quote){
                 retrieve_token();
-            }else{
-                std::cerr << "Expected '\"'" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            auto node_stmt_print = m_allocator.alloc<Node_stmt_print>();
-            node_stmt_print->msg.value = search().value().value;
-            auto node_stmt = m_allocator.alloc<Node_stmt>();
-            node_stmt->stmt_var = node_stmt_print;
-            retrieve_token();
-            if(search().value().type == TokenType::quote){
+                auto node_stmt_print = m_allocator.alloc<Node_stmt_print>();
+                node_stmt_print->msg.value = search().value().value;
+                node_stmt_print->msg.type = search().value().type;
+                node_stmt->stmt_var = node_stmt_print;
+                retrieve_token();
+                if(search().value().type == TokenType::quote){
+                    retrieve_token();
+                }else{
+                    std::cerr << "Expected '\"'" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }else if(search().value().type == TokenType::ident){
+                auto node_stmt_print = m_allocator.alloc<Node_stmt_print>();
+                node_stmt_print->msg.value = search().value().value;
+                node_stmt_print->msg.type = search().value().type;
+                node_stmt->stmt_var = node_stmt_print;
                 retrieve_token();
             }else{
                 std::cerr << "Expected '\"'" << std::endl;
                 exit(EXIT_FAILURE);
             }
+
             if(search().value().type == TokenType::close_paren){
                 retrieve_token();
             }else{
@@ -352,6 +380,34 @@ std::optional<Node_stmt*> Parser::Parse_stmt() {
             auto node_stmt = m_allocator.alloc<Node_stmt>();
             node_stmt->stmt_var = stmt_ident;
             return node_stmt;
+        }else if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(1).value().type == TokenType::plus && search(2).has_value() && search(2).value().type == TokenType::plus){
+            auto stmt_incr = m_allocator.alloc<Node_stmt_incr>();
+            stmt_incr->ident = retrieve_token();
+            retrieve_token();
+            retrieve_token();
+            if(search().has_value() && search().value().type == TokenType::semi){
+                retrieve_token();
+                auto node_stmt = m_allocator.alloc<Node_stmt>();
+                node_stmt->stmt_var = stmt_incr;
+                return node_stmt;
+            }else{
+                std::cerr << "Expected ';'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }else if(search().has_value() && search().value().type == TokenType::ident && search(1).has_value() && search(1).value().type == TokenType::minus && search(2).has_value() && search(2).value().type == TokenType::minus){
+            auto stmt_decr = m_allocator.alloc<Node_stmt_decr>();
+            stmt_decr->ident = retrieve_token();
+            retrieve_token();
+            retrieve_token();
+            if(search().has_value() && search().value().type == TokenType::semi){
+                retrieve_token();
+                auto node_stmt = m_allocator.alloc<Node_stmt>();
+                node_stmt->stmt_var = stmt_decr;
+                return node_stmt;
+            }else{
+                std::cerr << "Expected ';'" << std::endl;
+                exit(EXIT_FAILURE);
+            }
         }
     }
 

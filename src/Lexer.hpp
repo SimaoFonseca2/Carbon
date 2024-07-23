@@ -34,16 +34,13 @@ inline std::vector<Token> Lexer::lex() {
                 tokens.push_back({TokenType::_return, buffer});
             } else if (buffer == "let") {
                 tokens.push_back({TokenType::_let, buffer});
+            }else if(buffer == "for"){
+                tokens.push_back({TokenType::_for, buffer});
             }else if(buffer == "if"){
                 tokens.push_back({TokenType::_if, buffer});
             }else {
                 tokens.push_back({TokenType::ident, buffer});
             }
-            /*
-             * else if(search(-1).value()=='"'){
-                tokens.push_back({TokenType::string, buffer});
-            }
-             */
             buffer.clear();
         } else if (isdigit(search().value())) {
             while (search().has_value() && std::isdigit(search().value())) {
@@ -85,11 +82,23 @@ inline std::vector<Token> Lexer::lex() {
                     tokens.push_back({TokenType::close_curly, "}"});
                     break;
                 case '>':
-                    tokens.push_back({TokenType::bigger, ">"});
-                    break;
+                    if(search(1).has_value() && search(1).value() == '='){
+                        tokens.push_back({TokenType::bigger_n_equal, ">="});
+                        step();
+                        break;
+                    }else{
+                        tokens.push_back({TokenType::bigger, ">"});
+                        break;
+                    }
                 case '<':
-                    tokens.push_back({TokenType::smaller, "<"});
-                    break;
+                    if(search(1).has_value() && search(1).value() == '='){
+                        tokens.push_back({TokenType::smaller_n_equal, "<="});
+                        step();
+                        break;
+                    }else{
+                        tokens.push_back({TokenType::smaller, "<"});
+                        break;
+                    }
                 case '"':
                     tokens.push_back({TokenType::quote, ""});
                     step();
@@ -104,7 +113,6 @@ inline std::vector<Token> Lexer::lex() {
                     if(buffer.find('\"')){
                         tokens.push_back({TokenType::quote, buffer});
                     }
-
                     m_index--;
                     break;
                 default:
@@ -138,7 +146,7 @@ std::optional<char> Lexer::search(int offset = 1) const {
         return {};
     }
     else{
-        return m_source.at(m_index);
+        return m_source.at(m_index+offset);
     }
 }
 

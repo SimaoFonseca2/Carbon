@@ -20,11 +20,14 @@ enum class TokenType{
     open_curly,
     close_curly,
     _if,
-    bigger,//not implemented yet
-    smaller,//not implemented yet
+    bigger,
+    smaller,
     _print,
     quote,
-    string
+    string,
+    _for,
+    bigger_n_equal,
+    smaller_n_equal
 };
 
 struct Token{

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -g CMakeFiles/CarbonTest.dir/Tests/TestMain.cpp.o CMakeFiles/CarbonTest.dir/Tests/TestLexer.cpp.o CMakeFiles/CarbonTest.dir/Tests/TestParser.cpp.o CMakeFiles/CarbonTest.dir/Tests/TestAssemblyGen.cpp.o -o CarbonTest  lib/libgtest.a lib/libgtest_main.a lib/libgtest.a 

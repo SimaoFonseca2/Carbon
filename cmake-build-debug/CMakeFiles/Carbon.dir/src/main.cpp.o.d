@@ -167,7 +167,8 @@ CMakeFiles/Carbon.dir/src/main.cpp.o: /home/lazylinux/Carbon/src/main.cpp \
  /usr/include/c++/13/bits/stl_bvector.h \
  /usr/include/c++/13/bits/vector.tcc \
  /home/lazylinux/Carbon/src/Parser.hpp \
- /home/lazylinux/Carbon/src/Allocator.hpp /usr/include/c++/13/variant \
+ /home/lazylinux/Carbon/src/Allocator.hpp \
+ /home/lazylinux/Carbon/src/Node.hpp /usr/include/c++/13/variant \
  /usr/include/c++/13/bits/parse_numbers.h \
  /home/lazylinux/Carbon/src/AssemblyGen.hpp /usr/include/c++/13/map \
  /usr/include/c++/13/bits/stl_tree.h \
